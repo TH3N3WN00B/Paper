@@ -113,6 +113,14 @@ abstract class MockitoAgentProvider : CommandLineArgumentProvider {
     }
 }
 
+// EXPERIMENTAL - locally built openzl-jni (mvn install -Dmaven.repo.local=bench/m2), only used for OpenZL benchmarks
+repositories {
+    exclusiveContent {
+        forRepository { maven(rootProject.layout.projectDirectory.dir("bench/m2")) { name = "localOpenZLJni" } }
+        filter { includeGroup("io.github.hybledav") }
+    }
+}
+
 dependencies {
     implementation(project(":paper-api"))
     implementation(platform("ca.spottedleaf.leafpile:bom:1.3.2"))
@@ -140,6 +148,9 @@ dependencies {
     }
     implementation("io.netty:netty-codec-haproxy:4.2.16.Final") // Add support for proxy protocol
     implementation("com.github.luben:zstd-jni:1.5.7-24") // zstd region file compression
+    // EXPERIMENTAL - OpenZL region compression for benchmarking, from a locally built openzl-jni (bench/m2)
+    implementation("io.github.hybledav:openzl-jni:0.3.0")
+    runtimeOnly("io.github.hybledav:openzl-jni:0.3.0:windows_amd64")
     implementation("org.apache.logging.log4j:log4j-iostreams:2.26.0")
     implementation("org.ow2.asm:asm-commons:9.9.1")
     implementation("org.spongepowered:configurate-yaml:4.2.0")

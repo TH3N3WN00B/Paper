@@ -43,12 +43,51 @@ public final class CustomRegionCompression {
         if (ZSTD_ID.equals(id)) {
             return new ByteArrayInputStream(decompressZstd(in.readAllBytes()));
         }
+        if (OPENZL_ID.equals(id)) {
+            return new ByteArrayInputStream(OpenZLRegionCodec.decompress(in.readAllBytes()));
+        }
         throw new UnknownCompressionException(id);
     }
 
     public static OutputStream wrapZstdOutput(final OutputStream out) throws IOException {
         new DataOutputStream(out).writeUTF(ZSTD_ID); // DataOutputStream is unbuffered, this goes straight to out
         return new ZstdChunkOutputStream(out);
+    }
+
+    // EXPERIMENTAL - OpenZL region compression (benchmarking only, see OpenZLRegionCodec)
+    public static final String OPENZL_ID = "paper:openzl";
+
+    public static OutputStream wrapOpenZLOutput(final OutputStream out) throws IOException {
+        new DataOutputStream(out).writeUTF(OPENZL_ID);
+        return new BufferedChunkOutputStream(out) {
+            @Override
+            protected byte[] compress(final byte[] data, final int length) {
+                return OpenZLRegionCodec.compress(data, length);
+            }
+        };
+    }
+
+    /** Buffers the whole chunk, then writes it compressed in one shot when closed. */
+    private abstract static class BufferedChunkOutputStream extends ByteArrayOutputStream {
+        private final OutputStream out;
+        private boolean closed;
+
+        private BufferedChunkOutputStream(final OutputStream out) {
+            super(16 * 1024);
+            this.out = out;
+        }
+
+        protected abstract byte[] compress(byte[] data, int length) throws IOException;
+
+        @Override
+        public void close() throws IOException {
+            if (this.closed) {
+                return;
+            }
+            this.closed = true;
+            this.out.write(this.compress(this.buf, this.count));
+            this.out.close();
+        }
     }
 
     private static byte[] decompressZstd(final byte[] compressed) throws IOException {
