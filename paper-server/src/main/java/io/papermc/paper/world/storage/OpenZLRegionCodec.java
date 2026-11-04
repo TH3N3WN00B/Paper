@@ -20,21 +20,18 @@ import org.jspecify.annotations.Nullable;
 final class OpenZLRegionCodec {
 
     static final int LEVEL = Integer.getInteger("Paper.region-file-compression.openzl-level", 6);
-    // Optional serialized (trained) compressor from `zli train`. openzl-jni can only use it through its static
-    // per-call path, which deserializes the compressor and creates a new context for every chunk.
+    // Optional serialized (trained) compressor from `zli train`, loaded once per thread. It keeps the level it was
+    // trained with, so openzl-level only applies without it.
     private static final byte @Nullable [] TRAINED = loadTrained(System.getProperty("Paper.region-file-compression.openzl-compressor"));
 
-    static {
-        // openzl-jni's static helpers (compressWithSerializedNative) do not load the native library themselves and
-        // OpenZLNative.load() is package-private; constructing a compressor loads it.
-        new OpenZLCompressor().close();
-    }
-
     // The default graph (a zstd node) compresses chunk NBT better than the "serial" profile (ratio 7.40 vs 6.48).
-    // Note: openzl-jni 0.3.0 currently ignores setCompressionLevel (the context keeps a sticky default level).
     private static final ThreadLocal<OpenZLCompressor> COMPRESSOR = ThreadLocal.withInitial(() -> {
         final OpenZLCompressor compressor = new OpenZLCompressor();
-        compressor.setCompressionLevel(OpenZLCompressionLevel.fromLevel(LEVEL));
+        if (TRAINED != null) {
+            compressor.configureSerialized(TRAINED);
+        } else {
+            compressor.setCompressionLevel(OpenZLCompressionLevel.fromLevel(LEVEL));
+        }
         return compressor;
     });
 
@@ -43,9 +40,6 @@ final class OpenZLRegionCodec {
 
     static byte[] compress(final byte[] data, final int length) {
         final byte[] input = length == data.length ? data : java.util.Arrays.copyOf(data, length);
-        if (TRAINED != null) {
-            return OpenZLCompressor.compressWithSerializedNative("serial", TRAINED, input);
-        }
         return COMPRESSOR.get().compress(input);
     }
 

@@ -24,6 +24,9 @@ jobs:
       ORG_GRADLE_PROJECT_paperBuildCacheUsername: ${{ secrets.PAPER_BUILD_CACHE_USERNAME }}
       ORG_GRADLE_PROJECT_paperBuildCachePassword: ${{ secrets.PAPER_BUILD_CACHE_PASSWORD }}
       ORG_GRADLE_PROJECT_paperBuildCachePush: true
+      # EXPERIMENTAL - OpenZL: openzl-jni comes from GitHub Packages, which needs a token even for public packages
+      ORG_GRADLE_PROJECT_openzlJniUsername: ${{ github.actor }}
+      ORG_GRADLE_PROJECT_openzlJniPassword: ${{ secrets.GITHUB_TOKEN }}
 
     # The goal of the build workflow is split into multiple requirements.
     # 1. Run on pushes to same repo.
