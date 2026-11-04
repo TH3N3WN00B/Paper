@@ -113,23 +113,17 @@ abstract class MockitoAgentProvider : CommandLineArgumentProvider {
     }
 }
 
-// EXPERIMENTAL - OpenZL benchmarks only: openzl-jni comes from GitHub Packages (base + linux_amd64 jars).
+// EXPERIMENTAL - OpenZL benchmarks only: openzl-jni comes from the GitHub Packages of TH3N3WN00B/openzl-jni.
 // GitHub Packages needs a token with read:packages even for public packages: pass it as the
 // openzlJniUsername / openzlJniPassword Gradle properties (CI sets them through ORG_GRADLE_PROJECT_ env vars).
-// No windows_amd64 native is published: a local openzl-jni build copied into bench/m2 is preferred and adds it.
-val openzlJniLocalRepo = rootProject.layout.projectDirectory.dir("bench/m2")
-val openzlJniWindowsNative = openzlJniLocalRepo.file("io/github/th3n3wn00b/openzl-jni/0.3.0/openzl-jni-0.3.0-windows_amd64.jar").asFile.isFile
 repositories {
     exclusiveContent {
-        forRepositories(
-            maven(openzlJniLocalRepo) { name = "localOpenZLJni" },
+        forRepository {
             maven("https://maven.pkg.github.com/TH3N3WN00B/openzl-jni") {
                 name = "openzlJni"
-                if (providers.gradleProperty("openzlJniPassword").isPresent) {
-                    credentials(PasswordCredentials::class) // fails fast when missing, even if bench/m2 has everything
-                }
-            },
-        )
+                credentials(PasswordCredentials::class)
+            }
+        }
         filter { includeGroup("io.github.th3n3wn00b") }
     }
 }
@@ -162,11 +156,9 @@ dependencies {
     implementation("io.netty:netty-codec-haproxy:4.2.16.Final") // Add support for proxy protocol
     implementation("com.github.luben:zstd-jni:1.5.7-24") // zstd region file compression
     // EXPERIMENTAL - OpenZL region compression for benchmarking (see the openzl-jni repositories above)
-    implementation("io.github.th3n3wn00b:openzl-jni:0.3.0")
-    runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.0:linux_amd64")
-    if (openzlJniWindowsNative) {
-        runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.0:windows_amd64")
-    }
+    implementation("io.github.th3n3wn00b:openzl-jni:0.3.1")
+    runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.1:linux_amd64")
+    runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.1:windows_amd64")
     implementation("org.apache.logging.log4j:log4j-iostreams:2.26.0")
     implementation("org.ow2.asm:asm-commons:9.9.1")
     implementation("org.spongepowered:configurate-yaml:4.2.0")
