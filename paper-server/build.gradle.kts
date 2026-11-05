@@ -156,9 +156,11 @@ dependencies {
     implementation("io.netty:netty-codec-haproxy:4.2.16.Final") // Add support for proxy protocol
     implementation("com.github.luben:zstd-jni:1.5.7-24") // zstd region file compression
     // EXPERIMENTAL - OpenZL region compression for benchmarking (see the openzl-jni repositories above)
-    implementation("io.github.th3n3wn00b:openzl-jni:0.3.1")
-    runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.1:linux_amd64")
-    runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.1:windows_amd64")
+    implementation("io.github.th3n3wn00b:openzl-jni:0.3.3")
+    // Every published native (there is no Linux arm64 one yet)
+    for (platform in listOf("linux_amd64", "windows_amd64", "macos_arm64", "macos_amd64", "freebsd_amd64", "sunos_amd64")) {
+        runtimeOnly("io.github.th3n3wn00b:openzl-jni:0.3.3:$platform")
+    }
     implementation("org.apache.logging.log4j:log4j-iostreams:2.26.0")
     implementation("org.ow2.asm:asm-commons:9.9.1")
     implementation("org.spongepowered:configurate-yaml:4.2.0")
