@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import net.minecraft.world.level.chunk.storage.RegionFile;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -16,7 +16,6 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * Only touched (and its native library only loaded) when a region file actually uses {@code paper:openzl}.
  */
-@NullMarked
 final class OpenZLRegionCodec {
 
     static final int LEVEL = Integer.getInteger("Paper.region-file-compression.openzl-level", 6);
@@ -39,7 +38,7 @@ final class OpenZLRegionCodec {
     }
 
     static byte[] compress(final byte[] data, final int length) {
-        final byte[] input = length == data.length ? data : java.util.Arrays.copyOf(data, length);
+        final byte[] input = length == data.length ? data : Arrays.copyOf(data, length);
         return COMPRESSOR.get().compress(input);
     }
 

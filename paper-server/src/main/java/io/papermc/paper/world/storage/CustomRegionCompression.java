@@ -23,6 +23,8 @@ import net.minecraft.world.level.chunk.storage.RegionFile;
 public final class CustomRegionCompression {
 
     public static final String ZSTD_ID = "paper:zstd";
+    // EXPERIMENTAL - OpenZL region compression (benchmarking only, see OpenZLRegionCodec)
+    public static final String OPENZL_ID = "paper:openzl";
     // Level 6 is smaller than vanilla deflate while compressing ~3x and decompressing ~3x faster on real chunk data.
     public static final int ZSTD_LEVEL = Integer.getInteger("Paper.region-file-compression.zstd-level", 6);
 
@@ -55,8 +57,6 @@ public final class CustomRegionCompression {
     }
 
     // EXPERIMENTAL - OpenZL region compression (benchmarking only, see OpenZLRegionCodec)
-    public static final String OPENZL_ID = "paper:openzl";
-
     public static OutputStream wrapOpenZLOutput(final OutputStream out) throws IOException {
         new DataOutputStream(out).writeUTF(OPENZL_ID);
         return new BufferedChunkOutputStream(out) {
