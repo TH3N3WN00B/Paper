@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PR_NUMBER: "14467"
-      PAPER_COMMIT: e1b902ce6a607f8cef0eb53b09eac076a22e1ae6
+      PAPER_COMMIT: 95c9d007f83a7d31e3fc731e954a04ae0a3ec9d4
     steps:
       - uses: actions/checkout@v7
         with:
@@ -50,6 +50,6 @@ jobs:
       - name: Upload Jar
         uses: actions/upload-artifact@v7
         with:
-          name: paper-26.3-zstd-pr14467-e1b902ce6
+          name: paper-26.3-zstd-pr14467-95c9d007f
           path: out/*
           retention-days: 90
